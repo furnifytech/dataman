@@ -66,8 +66,10 @@ public class TableImporter {
 
 				List<Column> defaultCols = table.getDefaultValue().getCol();
 				Map<String, String> defaultValues = new HashMap<>();
-				for (Column column : defaultCols) {
-					defaultValues.put(column.getName(), column.getValue());
+				if (defaultCols != null && !defaultCols.isEmpty()) {
+					for (Column column : defaultCols) {
+						defaultValues.put(column.getName(), column.getValue());
+					}
 				}
 
 				for (Map<String, String> row : table.getRows()) {
