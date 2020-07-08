@@ -20,14 +20,14 @@ public class DataUpdater {
 	
 	private static final Logger logger = Logger.getLogger(DataUpdater.class.getName());
 
-	public static boolean importFromXML(Connection con, Path xmlPath) {
+	public static boolean importFromXML(Connection con, Path xmlPath, String profile) {
 		try {
 	        JAXBContext jaxbContext = JAXBContext.newInstance(Tables.class);
 	        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 	        Tables tables = (Tables) unmarshaller.unmarshal(xmlPath.toFile());
 	        for(Table table : tables.getTable()) {
                 logger.log(Level.INFO, "Starting to Process : " + table.getName() + " at " + LocalDateTime.now());
-	        	TableImporter.processTable(con, table);
+	        	TableImporter.processTable(con, table, profile);
                 logger.log(Level.INFO, "Completed Processing " + table.getName() + " at " + LocalDateTime.now());
 	        }
 		} catch (Exception e) {
@@ -36,14 +36,14 @@ public class DataUpdater {
 		return true;
 	}
 
-	public static void importFromDirectory(Connection con, String directory) throws IOException {
+	public static void importFromDirectory(Connection con, String directory, String profile) throws IOException {
 		Path dirPath = Paths.get(directory).toAbsolutePath().normalize();
 
 		List<Path> xmlFileList = Files.list(dirPath)
 				.filter(path -> Files.isReadable(path))
 				.collect(Collectors.toList());
 
-		xmlFileList.forEach(path -> importFromXML(con, path));
+		xmlFileList.forEach(path -> importFromXML(con, path, profile));
 	}
 	
 }

@@ -1,5 +1,6 @@
 package com.furnify.dataman.processor;
 
+import com.furnify.dataman.constants.Constants;
 import com.furnify.dataman.dao.TableDao;
 import com.furnify.dataman.model.Column;
 import com.furnify.dataman.model.Meta;
@@ -17,7 +18,7 @@ public class TableImporter {
 
 	private TableImporter() {  }
 
-	public static void processTable(Connection connection, Table table) {
+	public static void processTable(Connection connection, Table table, String profile) {
 		// Validate if Table Name contains Schema
 		if (!table.getName().contains(".")) {
 			logger.log(Level.SEVERE, "Table Name does not contain Schema Name. Skipping Table - " + table.getName());
@@ -73,6 +74,11 @@ public class TableImporter {
 				}
 
 				for (Map<String, String> row : table.getRows()) {
+					if (row.get(Constants.PROFILE) != null && profile != null &&
+							!profile.equalsIgnoreCase(row.get(Constants.PROFILE))) {
+						continue;
+					}
+
 					StringBuilder stringBuilder = new StringBuilder();
 					stringBuilder.append("SELECT * FROM ");
 					stringBuilder.append(table.getName());

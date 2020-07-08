@@ -11,7 +11,7 @@ public class TestRun {
 
     public static void main(String args[]) {
         Connection connection = getConnection();
-        DataUpdater.importFromXML(connection, Paths.get("D:\\Repo\\centrally_server\\src\\main\\resources\\dataman\\menu_master.xml"));
+        DataUpdater.importFromXML(connection, Paths.get("D:\\menu_master.xml"), "dev");
     }
 
     private static Connection getConnection() {
