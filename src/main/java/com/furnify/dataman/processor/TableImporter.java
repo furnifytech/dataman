@@ -19,17 +19,18 @@ public class TableImporter {
 	private TableImporter() {  }
 
 	public static void processTable(Connection connection, Table table, String profile) {
-		// Validate if Table Name contains Schema
-		if (!table.getName().contains(".")) {
-			logger.log(Level.SEVERE, "Table Name does not contain Schema Name. Skipping Table - " + table.getName());
-			return;
-		}
-
-		String[] tableNameArr = table.getName().split("\\.");
-		String schemaName = tableNameArr[0];
-		String tableName = tableNameArr[1];
-
 		try {
+			String tableName = table.getName();
+			String schemaName = connection.getCatalog();
+
+			if (table.getName().contains(".")) {
+				String[] tableNameArr = table.getName().split("\\.");
+				schemaName = tableNameArr[0];
+				tableName = tableNameArr[1];
+			}
+
+			logger.log(Level.INFO, "Schema Name " + schemaName + " " + tableName);
+
 			// Check if the Table Exists
 			if(TableDao.tableExists(connection, schemaName, tableName)) {
 				Meta meta = table.getMeta();
