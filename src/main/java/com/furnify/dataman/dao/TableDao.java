@@ -9,36 +9,38 @@ import java.sql.SQLException;
 
 public class TableDao {
 
-    public static boolean tableExists(Connection con, String schemaName, String tableName) throws SQLException {
-        @Cleanup PreparedStatement pstmt = con.prepareStatement("SELECT * FROM INFORMATION_SCHEMA.TABLES " +
-                "WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?");
-        pstmt.setString(1, schemaName);
-        pstmt.setString(2, tableName);
-        @Cleanup ResultSet resultSet = pstmt.executeQuery();
-        if (resultSet.next()) {
-            return true;
-        } else {
-            return false;
+    private final Connection connection;
+
+    public TableDao(Connection connection) {
+        this.connection = connection;
+    }
+
+    public boolean tableExists(String schemaName, String tableName) throws SQLException {
+        try (PreparedStatement pstmt = connection.prepareStatement("SELECT * FROM INFORMATION_SCHEMA.TABLES " +
+                "WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?")) {
+            pstmt.setString(1, schemaName);
+            pstmt.setString(2, tableName);
+
+            ResultSet resultSet = pstmt.executeQuery();
+            return resultSet.next();
         }
     }
 
-    public static boolean recordExists(Connection con, String query) throws SQLException {
-        @Cleanup PreparedStatement pstmt = con.prepareStatement(query);
-        @Cleanup ResultSet resultSet = pstmt.executeQuery();
-        if (resultSet.next()) {
-            return true;
-        } else {
-            return false;
+    public boolean recordExists(String query) throws SQLException {
+        try (PreparedStatement selectStatement = connection.prepareStatement(query)) {
+            ResultSet resultSet = selectStatement.executeQuery();
+            return resultSet.next();
         }
     }
 
-    public static int executeInsert(Connection con, String query) throws SQLException {
-        return executeUpdate(con, query);
+    public int executeInsert(String query) throws SQLException {
+        return executeUpdate(query);
     }
 
-    public static int executeUpdate(Connection con, String query) throws SQLException {
-        @Cleanup PreparedStatement pstmt = con.prepareStatement(query);
-        return pstmt.executeUpdate();
+    public int executeUpdate(String query) throws SQLException {
+        try (PreparedStatement updateStatement = connection.prepareStatement(query)) {
+            return updateStatement.executeUpdate();
+        }
     }
 
 }

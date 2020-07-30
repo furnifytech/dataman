@@ -42,14 +42,14 @@ public class Table {
 	private List<Element> row;
 	
 	public List<Map<String, String>> getRows() {
-		List<Map<String, String>> rows = new ArrayList<Map<String,String>>();
+		List<Map<String, String>> rows = new ArrayList<>();
 		for(Element element : row) {
 			Map<String, String> mapData = new HashMap<>();
 			
 			// Read all the attributes
 			NamedNodeMap attrMap = element.getAttributes();
 			for(int i=0; i<attrMap.getLength(); i++) {
-				Node attr = (Node) attrMap.item(i);
+				Node attr = attrMap.item(i);
 				mapData.put(attr.getNodeName().trim(), attr.getNodeValue().trim());
 			}
 			
