@@ -67,7 +67,7 @@ public class TableImporter {
 
 				Map<String, String> defaultValues = getDefaultColumns(table);
 
-				for (Map<String, String> row : table.getRows()) {
+				for (Map<String, String> row : table.getRows(profile)) {
 					processRow(table, keys, columns, exceptionList, dataTypes, defaultValues, row);
 				}
 			} else {
@@ -78,8 +78,6 @@ public class TableImporter {
 		} catch (SQLException e) {
 			logger.log(Level.SEVERE, String.format("Exception in Processing Table %s ", table.getName()), e);
 		}
-
-		// Process
 	}
 
 	private void processRow(Table table, String[] keys, String[] columns, List<String> exceptionList, Map<String, String> dataTypes, Map<String, String> defaultValues, Map<String, String> row) throws SQLException {
