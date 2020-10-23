@@ -197,6 +197,10 @@ public class TableImporter {
 	}
 
 	private Map<String, String> getDefaultColumns(Table table) {
+		if (table.getDefaultValue() == null || table.getDefaultValue().getCol().size() <= 0) {
+			return new HashMap<>();
+		}
+
 		List<Column> defaultCols = table.getDefaultValue().getCol();
 		Map<String, String> defaultValues = new HashMap<>();
 		if (defaultCols != null && !defaultCols.isEmpty()) {
