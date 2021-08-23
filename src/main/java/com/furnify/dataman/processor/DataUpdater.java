@@ -6,6 +6,7 @@ import com.furnify.dataman.model.Tables;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -29,21 +30,37 @@ public class DataUpdater {
 	        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 	        Tables tables = (Tables) unmarshaller.unmarshal(xmlPath.toFile());
 
-	        TableImporter tableImporter = new TableImporter(con, profile);
-
-	        for(Table table : tables.getTable()) {
-                if (logger.isLoggable(Level.INFO)) {
-					logger.log(Level.INFO, String.format("Starting to Process : %s at %s", table.getName(), LocalDateTime.now().toString()));
-				}
-				tableImporter.processTable(table);
-                if (logger.isLoggable(Level.INFO)) {
-					logger.log(Level.INFO, String.format("Completed Processing : %s at %s", table.getName(), LocalDateTime.now().toString()));
-				}
-	        }
+			processTables(con, profile, tables);
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, "Exception Occurred in XML Import", e);
 		}
 		return true;
+	}
+	public static boolean importFromXML(Connection con, InputStream inputStream, String profile) {
+		try {
+	        JAXBContext jaxbContext = JAXBContext.newInstance(Tables.class);
+	        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+	        Tables tables = (Tables) unmarshaller.unmarshal(inputStream);
+
+			processTables(con, profile, tables);
+		} catch (Exception e) {
+			logger.log(Level.SEVERE, "Exception Occurred in XML Import", e);
+		}
+		return true;
+	}
+
+	private static void processTables(Connection con, String profile, Tables tables) {
+		TableImporter tableImporter = new TableImporter(con, profile);
+
+		for(Table table : tables.getTable()) {
+			if (logger.isLoggable(Level.INFO)) {
+				logger.log(Level.INFO, String.format("Starting to Process : %s at %s", table.getName(), LocalDateTime.now()));
+			}
+			tableImporter.processTable(table);
+			if (logger.isLoggable(Level.INFO)) {
+				logger.log(Level.INFO, String.format("Completed Processing : %s at %s", table.getName(), LocalDateTime.now()));
+			}
+		}
 	}
 
 	public static void importFromDirectory(Connection con, String directory, String profile) throws IOException {
