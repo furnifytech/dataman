@@ -5,6 +5,7 @@ import com.furnify.dataman.dao.TableDao;
 import com.furnify.dataman.model.Column;
 import com.furnify.dataman.model.Meta;
 import com.furnify.dataman.model.Table;
+import com.mysql.cj.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -143,9 +144,18 @@ public class TableImporter {
 	private void appendColumn(Map<String, String> dataTypes, StringBuilder values, String column, String data) {
 		if (Constants.VARCHAR.equalsIgnoreCase(dataTypes.get(column)) && data != null) {
 			values.append("'" + data + "'");
+		} else if (Constants.VARCHAR_ESCAPE.equalsIgnoreCase(dataTypes.get(column)) && data != null) {
+			values.append("'" + escapeValue(data) + "'");
 		} else {
 			values.append(data);
 		}
+	}
+
+	private String escapeValue(String data) {
+		data = data.replace("'", "\\'");
+		data = data.replace("\"", "\\\"");
+
+		return data;
 	}
 
 	private void updateRecord(Table table, String[] keys, String[] columns, List<String> exceptionList, Map<String, String> dataTypes, Map<String, String> defaultValues, Map<String, String> row) throws SQLException {
@@ -164,14 +174,21 @@ public class TableImporter {
 			}
 			stringBuilder.append(column + " = ");
 
-			boolean requiredQuotes = Constants.VARCHAR.equalsIgnoreCase(dataTypes.get(column));
+			String dataType = dataTypes.get(column);
+
+			boolean requiredQuotes = Constants.VARCHAR.equalsIgnoreCase(dataType) ||
+					Constants.VARCHAR_ESCAPE.equalsIgnoreCase(dataType);
 			String data = row.get(column) == null ? defaultValues.get(column) : row.get(column);
 
 			if (requiredQuotes && data != null) {
 				stringBuilder.append("'");
 			}
 
-			stringBuilder.append(data);
+			if (Constants.VARCHAR_ESCAPE.equalsIgnoreCase(dataType)) {
+				stringBuilder.append(escapeValue(data));
+			} else {
+				stringBuilder.append(data);
+			}
 
 			if (requiredQuotes && data != null) {
 				stringBuilder.append("'");
